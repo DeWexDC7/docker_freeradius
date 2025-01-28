@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  main_db:
+    image: postgres:13
+    container_name: main_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: main_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - main_db_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  support_db:
+    image: postgres:13
+    container_name: support_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: support_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - support_db_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  radius_failover:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: radius_failover
+    environment:
+      DB_MAIN_HOST: main_db
+      DB_MAIN_PORT: 5432
+      DB_SUPPORT_HOST: support_db
+      DB_SUPPORT_PORT: 5432
+      RADIUS_CONFIG_PATH: /config/radius.conf
+    volumes:
+      - ./config:/config:rw
+    depends_on:
+      - main_db
+      - support_db
+    networks:
+      - app_network
+
+volumes:
+  main_db_data:
+  support_db_data:
+
+networks:
+  app_network:
