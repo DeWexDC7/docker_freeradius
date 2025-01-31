@@ -1,3 +1,12 @@
+"""
+Este script monitorea la disponibilidad de dos bases de datos PostgreSQL (principal y de soporte).
+Si la base de datos principal falla, el script cambia la configuración del servidor RADIUS para
+apuntar a la base de datos de soporte y reinicia el servidor RADIUS. Si la base de datos principal
+vuelve a estar disponible, el script restaura la configuración original para apuntar a la base de
+datos principal. El estado de las bases de datos se verifica periódicamente y se registran los
+eventos importantes en un archivo de log y en la consola.
+"""
+
 import psycopg2
 from psycopg2 import OperationalError
 import subprocess
